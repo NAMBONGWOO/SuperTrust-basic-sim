@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#00938a">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="manifest" href="manifest.json">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SuperTrust Basic Sim - 테너남</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <style>
+        :root {
+            --tether-mint: #00938a;
+            --tether-navy: #1a2a40;
+            --tether-gray: #5e6c7c;
+            --bg: #f4f7f9;
+            --boost: #ff9800;
+        }
+
+        body { font-family: 'Pretendard', sans-serif; background-color: var(--bg); padding: 10px; color: var(--tether-navy); -webkit-text-size-adjust: none; }
+        .card { background: white; padding: 15px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 100%; max-width: 850px; margin: auto; box-sizing: border-box; }
+        
+        h2 { margin: 0 0 5px 0; font-weight: 800; font-size: 1.2rem; text-align: center; color: var(--tether-mint); }
+        .ver-tag { text-align: center; font-size: 10px; color: #adb5bd; margin-bottom: 12px; font-weight: bold; }
+        
+        .input-group { background: #f8f9fa; padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #eee; }
+        .section-title { font-size: 11px; font-weight: bold; color: var(--tether-mint); margin-bottom: 10px; border-left: 3px solid var(--tether-mint); padding-left: 6px; }
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .input-item { display: flex; flex-direction: column; }
+        .input-item label { font-size: 0.7rem; font-weight: 700; color: var(--tether-gray); margin-bottom: 4px; }
+        .input-item input, .input-item select { padding: 6px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.85rem; text-align: right; font-weight: 800; color: var(--tether-mint); outline: none; }
+
+        .table-container { overflow-x: auto; border-radius: 10px; border: 1px solid #eee; margin-top: 10px; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.68rem; text-align: center; white-space: nowrap; table-layout: auto; }
+        th { background: var(--tether-navy); color: white; padding: 8px 3px; font-weight: 600; }
+        td { padding: 7px 3px; border-bottom: 1px solid #eee; }
+
+        th:first-child, td:first-child { position: sticky; left: 0; z-index: 2; padding: 0 8px; background: #fcfcfc; font-weight: 700; border-right: 1px solid #eee; }
+        th:first-child { background: var(--tether-navy); color: white; }
+
+        .row-stepper { display: inline-flex; align-items: center; background: white; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; }
+        .row-stepper button { width: 22px; height: 22px; border: none; background: #f8f9fa; cursor: pointer; font-size: 14px; font-weight: bold; color: var(--boost); }
+        .row-stepper input { width: 35px; border: none; text-align: center; font-size: 0.7rem; font-weight: 800; background: transparent; outline: none; padding: 0; }
+
+        .bg-blue { background-color: #f1f8ff; font-weight: 800; color: #0056b3; }
+        .bg-increase { background-color: #fff2f0; color: #cf1322; font-weight: 800; }
+        
+        .member-on { color: #1a73e8; font-weight: bold; }
+        .member-off { color: #dc3545; font-weight: bold; }
+        .notice { font-size: 0.65rem; color: #999; margin-top: 12px; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>SuperTrust Basic Sim</h2>
+    <div class="ver-tag">ASSET GROWTH v1.14</div>
+
+    <div class="input-group">
+        <div class="section-title">ASSET CONFIG</div>
+        <div class="input-grid">
+            <div class="input-item"><label>신용대금 (USDT)</label><input type="text" id="currentCredit" value="0" oninput="formatInput(this); runSim()"></div>
+            <div class="input-item"><label>일일지급금 (USDT)</label><input type="text" id="dailyPay" value="0" oninput="formatInput(this); runSim()"></div>
+            <div class="input-item"><label>SUT 시세 ($)</label><input type="text" id="sutMarketPrice" value="1.0" oninput="formatInput(this); runSim()"></div>
+            <div class="input-item"><label>신용매수가 ($)</label><input type="text" id="creditPrice" value="4.8" oninput="formatInput(this); runSim()"></div>
+            <div class="input-item">
+                <label>주정산 요일</label>
+                <select id="payDay" onchange="runSim()">
+                    <option value="1">월요일</option><option value="4">목요일</option>
+                </select>
+            </div>
+            <div class="input-item"><label>시뮬레이션 기간 (주)</label><input type="number" id="weeks" value="12" oninput="runSim()"></div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>주차</th><th>자격</th><th>날짜</th><th>주정산금</th><th class="bg-blue">추가투입</th><th class="bg-blue">재참여</th><th class="bg-increase">일일지급금</th><th>신용대금 합계(K)</th>
+                </tr>
+            </thead>
+            <tbody id="resultBody"></tbody>
+        </table>
+    </div>
+    <div class="notice">
+        • <b>자격 ON</b>: 주정산금의 50% 이상 재참여 시 활성화됩니다.<br>
+        • 일일지급금은 재참여가 반영되어 매주 실시간으로 증가합니다.
+    </div>
+</div>
+
+<script>
+let weeklyExtras = new Array(53).fill(0);
+
+function formatInput(el) {
+    let val = el.value.replace(/[^0-9.]/g, '');
+    if (val !== "") {
+        let parts = val.split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        el.value = parts.join('.');
+    }
+}
+
+function updateWeeklyExtra(week, delta) {
+    weeklyExtras[week] = Math.max(0, weeklyExtras[week] + delta);
+    runSim();
+}
+
+function runSim() {
+    const parseNum = (id) => parseFloat(document.getElementById(id).value.replace(/,/g, '')) || 0;
+    let creditTotal = parseNum('currentCredit');
+    let dailyPay = parseNum('dailyPay');
+    const creditPrice = parseNum('creditPrice');
+    const marketPrice = parseNum('sutMarketPrice');
+    const payDayIdx = parseInt(document.getElementById('payDay').value);
+    const weeksCount = parseInt(document.getElementById('weeks').value) || 12;
+    const dailyRate = creditTotal > 0 ? dailyPay / creditTotal : 0;
+
+    const tbody = document.getElementById('resultBody');
+    tbody.innerHTML = '';
+    let simulationDate = new Date("2026-03-17");
+    let carryOver = 0;
+
+    for (let w = 1; w <= weeksCount; w++) {
+        let settlementDate = new Date(simulationDate);
+        settlementDate.setDate(simulationDate.getDate() + (w - 1) * 7);
+        settlementDate.setDate(settlementDate.getDate() + (payDayIdx - settlementDate.getDay() + 7) % 7);
+        
+        let weeklySettlement = dailyPay * 7;
+        let halfPoint = weeklySettlement * 0.5;
+        let extra = weeklyExtras[w];
+        
+        // 재참여 로직 (50% 기준)
+        let baseReinvest = (Math.floor(halfPoint / 100) * 100) + extra;
+        let isMemberOn = baseReinvest >= (weeklySettlement * 0.5 - 1);
+        
+        let dateText = `${settlementDate.getMonth()+1}/${settlementDate.getDate()}`;
+
+        tbody.innerHTML += `<tr>
+            <td>${w}</td>
+            <td>${isMemberOn ? '<span class="member-on">ON</span>' : '<span class="member-off">OFF</span>'}</td>
+            <td style="font-size:10px;">${dateText}</td>
+            <td style="font-weight:bold;">${f(weeklySettlement)}</td>
+            <td class="bg-blue">
+                <div class="row-stepper">
+                    <button onclick="updateWeeklyExtra(${w}, -100)">-</button>
+                    <input type="text" value="${extra}" readonly>
+                    <button onclick="updateWeeklyExtra(${w}, 100)">+</button>
+                </div>
+            </td>
+            <td class="bg-blue">${f(baseReinvest)}</td>
+            <td class="bg-increase">${dailyPay.toFixed(1)}</td>
+            <td style="font-weight:bold;">${(creditTotal/1000).toFixed(1)}K</td>
+        </tr>`;
+        
+        // 자산 증식 로직
+        let neededSut = baseReinvest * 0.25;
+        creditTotal += baseReinvest + (neededSut * creditPrice);
+        dailyPay = creditTotal * dailyRate;
+    }
+}
+function f(n) { return Math.round(n).toLocaleString(); }
+window.onload = runSim;
+</script>
+</body>
+</html>
