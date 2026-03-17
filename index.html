@@ -44,14 +44,14 @@
 <body>
 <div class="card">
     <h2>SuperTrust Basic Sim</h2>
-    <div class="ver-tag">CLEAN UI v1.32</div>
+    <div class="ver-tag">TRUST EDITION v1.33</div>
     <div class="input-group">
         <div class="section-title">ASSET CONFIG</div>
         <div class="input-grid">
             <div class="input-item"><label>신용대금 (USDT)</label><input type="text" id="currentCredit" value="0" onfocus="if(this.value=='0')this.value=''" onblur="if(this.value=='')this.value='0'" oninput="formatInput(this); runSim()"></div>
             <div class="input-item"><label>일일지급금 (USDT)</label><input type="text" id="dailyPay" value="0" onfocus="if(this.value=='0')this.value=''" onblur="if(this.value=='')this.value='0'" oninput="formatInput(this); runSim()"></div>
             <div class="input-item"><label>SUT 시세 ($)</label><input type="text" id="sutMarketPrice" value="1.0" onfocus="if(this.value=='0')this.value=''" onblur="if(this.value=='')this.value='0'" oninput="formatInput(this); runSim()"></div>
-            <div class="input-item"><label>신용매수가 ($)</label><input type="text" id="creditPrice" value="3.24" onfocus="if(this.value=='0')this.value=''" onblur="if(this.value=='')this.value='0'" oninput="formatInput(this); runSim()"></div>
+            <div class="input-item"><label>신용매수가 ($)</label><input type="text" id="creditPrice" value="4.8" onfocus="if(this.value=='0')this.value=''" onblur="if(this.value=='')this.value='0'" oninput="formatInput(this); runSim()"></div>
             <div class="input-item"><label>주정산 요일</label>
                 <select id="payDay" onchange="runSim()">
                     <option value="1">월요일</option><option value="2">화요일</option><option value="3">수요일</option><option value="4">목요일</option><option value="5">금요일</option>
@@ -80,7 +80,7 @@ function handleDirectInput(week, val) { weeklyExtras[week] = parseFloat(val) || 
 function runSim() {
     const parseNum = (id) => parseFloat(document.getElementById(id).value.replace(/,/g, '')) || 0;
     let creditTotal = parseNum('currentCredit'), dailyPay = parseNum('dailyPay');
-    const creditPrice = parseNum('creditPrice') || 3.24; 
+    const creditPrice = parseNum('creditPrice') || 4.8; 
     const marketPrice = parseNum('sutMarketPrice') || 1.0; 
     const payDayIdx = parseInt(document.getElementById('payDay').value), weeksCount = parseInt(document.getElementById('weeks').value) || 12;
     const dailyRate = creditTotal > 0 ? dailyPay / creditTotal : 0;
